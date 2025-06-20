@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Certificate Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-radius: 15px;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cert-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            margin-top: 15px;
+            padding: 12px 30px;
+            width: auto;
+            display: inline-block;
+            text-decoration: none;
+            border-radius: 25px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .tips {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tip-item {
+            margin-bottom: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Certificate Generator</h1>
+        
+        <form id="certForm">
+            <div class="form-group">
+                <label for="commonName">🌐 Common Name (Domain/IP)</label>
+                <input type="text" id="commonName" name="commonName" 
+                       placeholder="example.com or 192.168.1.1" required>
+            </div>
+
+            <div class="input-group">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="country">🏳️ Country</label>
+                    <input type="text" id="country" name="country" 
+                           placeholder="US" maxlength="2" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="state">🏛️ State</label>
+                    <input type="text" id="state" name="state" 
+                           placeholder="California" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="city">🏙️ City</label>
+                    <input type="text" id="city" name="city" 
+                           placeholder="San Francisco" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="organization">🏢 Organization</label>
+                    <input type="text" id="organization" name="organization" 
+                           placeholder="Your Company" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="validDays">⏰ Validity (Days)</label>
+                <select id="validDays" name="validDays">
+                    <option value="30">30 Days</option>
+                    <option value="90">90 Days</option>
+                    <option value="365" selected>1 Year</option>
+                    <option value="730">2 Years</option>
+                    <option value="1095">3 Years</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="keySize">🔑 Key Size</label>
+                <select id="keySize" name="keySize">
+                    <option value="2048" selected>2048 bits (Recommended)</option>
+                    <option value="4096">4096 bits (High Security)</option>
+                </select>
+            </div>
+
+            <button type="submit">🚀 Generate Certificate</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating your certificate...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <div class="cert-info" id="certInfo"></div>
+            <a href="#" class="download-btn" id="downloadBtn">📥 Download Certificate</a>
+            <a href="#" class="download-btn" id="downloadKeyBtn">🔐 Download Private Key</a>
+        </div>
+
+        <div class="tips">
+            <h3>💡 Quick Tips:</h3>
+            <div class="tip-item">• Use domain names like <strong>example.com</strong> or IP addresses like <strong>192.168.1.1</strong></div>
+            <div class="tip-item">• Self-signed certificates are perfect for development and testing</div>
+            <div class="tip-item">• Keep your private key secure and never share it</div>
+            <div class="tip-item">• Browsers will show a warning for self-signed certificates</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('certForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const result = document.getElementById('result');
+            
+            // Show loading, hide others
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            result.style.display = 'none';
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const responseData = await response.json();
+                
+                if (response.ok) {
+                    // Success
+                    document.getElementById('certInfo').innerHTML = `
+                        <h3>🎉 Certificate Generated Successfully!</h3>
+                        <p><strong>Common Name:</strong> ${responseData.common_name}</p>
+                        <p><strong>Valid From:</strong> ${responseData.valid_from}</p>
+                        <p><strong>Valid Until:</strong> ${responseData.valid_until}</p>
+                        <p><strong>Key Size:</strong> ${responseData.key_size} bits</p>
+                        <p><strong>Serial Number:</strong> ${responseData.serial_number}</p>
+                    `;
+                    
+                    // Set download links
+                    document.getElementById('downloadBtn').href = `/download/cert/${responseData.cert_id}`;
+                    document.getElementById('downloadKeyBtn').href = `/download/key/${responseData.cert_id}`;
+                    
+                    result.style.display = 'block';
+                } else {
+                    throw new Error(responseData.error || 'Failed to generate certificate');
+                }
+            } catch (err) {
+                error.textContent = '❌ ' + err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        // Auto-format country code to uppercase
+        document.getElementById('country').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        // Add some visual feedback
+        document.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
